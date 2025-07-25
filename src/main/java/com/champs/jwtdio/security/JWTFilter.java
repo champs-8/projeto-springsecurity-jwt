@@ -9,6 +9,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,6 +20,9 @@ import java.io.IOException;
 import java.util.List;
 
 public class JWTFilter extends OncePerRequestFilter {
+    @Autowired
+    private SecurityConfig securityConfig;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
             HttpServletResponse response,
@@ -29,7 +33,7 @@ public class JWTFilter extends OncePerRequestFilter {
         try{
             if(token != null && !token.isEmpty()) {
                 //cria o JWTObject a partir do token
-                JWTObject jwtObject = JWTCreator.create(token, SecurityConfig.KEY, SecurityConfig.PREFIX);
+                JWTObject jwtObject = JWTCreator.create(token, securityConfig.getKey(), securityConfig.getPrefix());
 
                 List<SimpleGrantedAuthority> authorities = authorities(jwtObject.getRoles());
 

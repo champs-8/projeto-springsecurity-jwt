@@ -1,8 +1,10 @@
 package com.champs.jwtdio.security;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,12 +13,15 @@ public class JWTCreator {
     public static final String HEADER_AUTHORIZATION = "Authorization";
     public static final String ROLES_AUTHORITIES = "authorities";
 
-        public static String createToken(String prefix, Key key, JWTObject jwtObject) {
+        public static String createToken(String prefix, String key, JWTObject jwtObject) {
+            // Create a signing key from the provided key string
+            Key hmacKey = Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8));
+
             String token = Jwts.builder().setSubject(jwtObject.getSubject())
                     .claim(ROLES_AUTHORITIES, checkRoles(jwtObject.getRoles()))
                     .setIssuedAt(jwtObject.getIssuedAt())
                     .setExpiration(jwtObject.getExpiration())
-                    .signWith(key, SignatureAlgorithm.HS512)
+                    .signWith(hmacKey, SignatureAlgorithm.HS512)
                     .compact();
             return prefix + " " + token;
         }
